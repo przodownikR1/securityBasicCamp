@@ -1,0 +1,42 @@
+dn: ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+dn: ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: uid=slawek,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Slawomir Borowiec
+uid: slawek
+userPassword: password
+
+dn: uid=jan,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Jan Kowalski
+uid: jan
+userPassword: password
+
+#Roles
+
+dn: cn=USER,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: USER
+uniqueMember: uid=slawek,ou=people,dc=springframework,dc=org
+uniqueMember: uid=jan,ou=people,dc=springframework,dc=org
+
+dn: cn=ADMIN,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: ADMIN
+uniqueMember: uid=slawek,ou=people,dc=springframework,dc=org

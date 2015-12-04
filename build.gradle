@@ -47,7 +47,22 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile('org.springframework.boot:spring-boot-starter-validation')
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity3'
+    compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity4:2.1.2.RELEASE'
+    
+    compile 'org.springframework.security:spring-security-ldap:4.0.3.RELEASE'
+    compile 'org.apache.directory.server:apacheds-core:1.5.5'
+    compile 'org.apache.directory.server:apacheds-protocol-ldap:1.5.5'
+    
+    
+    compile 'org.webjars:bootstrap:3.3.5'
+    compile 'org.webjars:jquery:2.1.4'
+    compile 'org.webjars:jquery-ui:1.11.4'
+    compile 'org.webjars:jquery-ui-themes:1.11.4'
+    compile ("org.webjars.bower:jquery.bootgrid:1.2.0") {
+        exclude group: 'org.webjars.bower'
+    }
+    
+    compile 'net.sf.ehcache:ehcache-core:2.6.11'
     runtime('com.h2database:h2')
     testCompile('org.springframework.boot:spring-boot-starter-test') 
     testCompile('org.springframework.restdocs:spring-restdocs-mockmvc:1.0.0.RELEASE')
@@ -58,14 +73,22 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-starter-parent:Brixton.M3" 
 	}
 }
+configurations {
+    all*.exclude group: "commons-logging", module: "commons-logging"
+}
 
-
-eclipse {
-    classpath {
-         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.springframework') {
+            details.useVersion '4.2.3.RELEASE'
+        }
+        if (details.requested.group == 'org.hibernate') {
+            details.useVersion '5.0.2.Final'
+        }
     }
 }
+
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'

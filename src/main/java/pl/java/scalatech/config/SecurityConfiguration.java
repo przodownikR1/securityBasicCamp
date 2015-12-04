@@ -1,17 +1,29 @@
 package pl.java.scalatech.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-@Configuration
+import lombok.extern.slf4j.Slf4j;
+import pl.java.scalatech.annotation.SecurityComponent;
 
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@Import(EncryptConfig.class)
+@Slf4j
+@ComponentScan(basePackages = { "pl.java.scalatech.security" }, useDefaultFilters = false, includeFilters = { @Filter(SecurityComponent.class) })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         // @formatter:off
@@ -24,14 +36,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .antMatchers("/webjars/**");
         // @formatter:on
     }
-    
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-        .formLogin().and()
+        .formLogin().defaultSuccessUrl("/welcome").and()
         .logout()
         .and()
-        
+
         .csrf().disable().headers().disable()
           .authorizeRequests().antMatchers("/login","/logout","secContext","principal","/health").permitAll()
           .antMatchers("/simple/**").hasAnyRole("USER")
@@ -46,18 +59,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .antMatchers("/beans/**").hasRole("ADMIN")
           .antMatchers("/env/**").hasRole("ADMIN")
           .antMatchers("/autoconfig/**").hasRole("ADMIN")
-          
-          
-          .anyRequest().permitAll(); 
+
+
+          .anyRequest().permitAll();
           // @formatter:on
     }
 
     @Autowired
     public void configureAuth(AuthenticationManagerBuilder auth) throws Exception {
      // @formatter:off
-        
-        auth.inMemoryAuthentication().withUser("przodownik").password("slawek").roles("USER").and()
-                                     .withUser("admin").password("slawek").roles( "ADMIN");
+
+        auth.ldapAuthentication()
+            .userDnPatterns("uid={0}, ou=people")
+            .groupSearchBase("ou=groups")
+            .contextSource()
+                .ldif("classpath:users.ldif");
      // @formatter:on
     }
 
